@@ -7,21 +7,30 @@ import com.portofolio.auth.model.Role;
 import com.portofolio.auth.model.User;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.stream.Collectors;
 
 public class UserMapper {
 
     public static UserDto userToUserDto(User user) {
+    	
+    	String base64Avatar = null;
+        if (user.getAvatar() != null && user.getAvatar().length > 0) {
+            base64Avatar = Base64.getEncoder().encodeToString(user.getAvatar());
+        }
+        
         return new UserDto(
                 user.getUserId(),
                 user.getFullname(),
-                user.getUsername(),
+//                user.getUsername(),
                 user.getEmail(),
-                user.getPassword(),
+//                user.getPassword(),
                 user.getGender(),
                 user.getPhone(),
-                null, // Avatar MultipartFile tidak bisa direpresentasikan dalam DTO Response
-                user.getRole().getAuthority(),
+                base64Avatar,
+//                null, // Avatar MultipartFile tidak bisa direpresentasikan dalam DTO Response
+//                user.getRole().getAuthority(),
+                user.getRole().getRoleName(),
                 user.getLocation(),
                 user.getWebsite(),
                 user.getGithubUrl(),
@@ -32,24 +41,13 @@ public class UserMapper {
     }
 
     public static User userDtoToUser(UserDto dto, Role role) {
-        byte[] avatarBytes = null;
-        if (dto.getAvatar() != null && !dto.getAvatar().isEmpty()) {
-            try {
-                avatarBytes = dto.getAvatar().getBytes();
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to read avatar file", e);
-            }
-        }
-
         return User.builder()
                 .userId(dto.getUserId())
                 .fullname(dto.getFullname())
-                .username(dto.getUsername())
                 .email(dto.getEmail())
-                .password(dto.getPassword()) // pastikan sudah di-encode sebelum save
+//                .password(dto.getPassword()) // pastikan sudah di-encode sebelum save
                 .gender(dto.getGender())
                 .phone(dto.getPhone())
-                .avatar(avatarBytes)
                 .role(role)
                 .location(dto.getLocation())
                 .website(dto.getWebsite())

@@ -18,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portofolio.auth.dto.LoginRequest;
 import com.portofolio.auth.dto.LoginResponse;
 import com.portofolio.auth.dto.UserInformation;
@@ -63,8 +62,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<LoginResponse> login(LoginRequest loginRequest, String accessToken, String refreshToken)  throws Exception{
     	
-    	System.out.println("login = "+new ObjectMapper().writeValueAsString(loginRequest));
-    	
     	validationService.validate(loginRequest);
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -76,8 +73,6 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userRepository.findByEmail(username).orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
-        System.out.println("user = "+user);
-
         boolean accessTokenValid = tokenProvider.validateToken(accessToken);
         boolean refreshTokenValid = tokenProvider.validateToken(refreshToken);
 
@@ -106,8 +101,6 @@ public class AuthServiceImpl implements AuthService {
             // save tokens in db
             tokenRepository.saveAll(List.of(newAccessToken, newRefreshToken));
 
-            addAccessTokenCookie(responseHeaders, newAccessToken);
-            addRefreshTokenCookie(responseHeaders, newRefreshToken);
         }
 
         if(!accessTokenValid && refreshTokenValid) {
@@ -118,7 +111,6 @@ public class AuthServiceImpl implements AuthService {
                     user
             );
 
-            addAccessTokenCookie(responseHeaders, newAccessToken);
         }
 
         if(accessTokenValid && refreshTokenValid) {
@@ -141,8 +133,6 @@ public class AuthServiceImpl implements AuthService {
             // save tokens in db
             tokenRepository.saveAll(List.of(newAccessToken, newRefreshToken));
 
-            addAccessTokenCookie(responseHeaders, newAccessToken);
-            addRefreshTokenCookie(responseHeaders, newRefreshToken);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -157,6 +147,7 @@ public class AuthServiceImpl implements AuthService {
 
         return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
     }
+    
     @Override
     public ResponseEntity<LoginResponse> refresh(String refreshToken)  throws Exception{
         boolean refreshTokenValid = tokenProvider.validateToken(refreshToken);
@@ -176,9 +167,6 @@ public class AuthServiceImpl implements AuthService {
                 user
         );
 
-//        HttpHeaders responseHeaders = new HttpHeaders();
-//        addAccessTokenCookie(responseHeaders, newAccessToken);
-
         UserInformation information = UserInformation.builder()
         		.userId(user.getUserId())
         		.email(user.getEmail())
@@ -188,8 +176,8 @@ public class AuthServiceImpl implements AuthService {
         LoginResponse loginResponse = new LoginResponse(true, user.getRole().getRoleName(),newAccessToken.getValue(),newAccessToken.getValue(),information);
 
         return ResponseEntity.ok().body(loginResponse);
-//        return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
     }
+    
     @Override
     public ResponseEntity<LoginResponse> logout(String accessToken, String refreshToken)  throws Exception{
         SecurityContextHolder.clearContext();
@@ -203,13 +191,11 @@ public class AuthServiceImpl implements AuthService {
 
         HttpHeaders responseHeaders = new HttpHeaders();
 
-        responseHeaders.add(HttpHeaders.SET_COOKIE, cookieUtil.deleteAccessTokenCookie().toString());
-        responseHeaders.add(HttpHeaders.SET_COOKIE, cookieUtil.deleteRefreshTokenCookie().toString());
-
         LoginResponse loginResponse = new LoginResponse(false, null,null,null,null);
 
         return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
     }
+    
     @Override
     public UserLoggedDto getUserLoggedInfo() throws Exception{
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -224,12 +210,8 @@ public class AuthServiceImpl implements AuthService {
 
         return UserMapper.userToUserLoggedDto(user);
     }
-    private void addAccessTokenCookie(HttpHeaders httpHeaders, Token token) {
-        httpHeaders.add(HttpHeaders.SET_COOKIE, cookieUtil.createAccessTokenCookie(token.getValue(), accessTokenDurationSecond).toString());
-    }
-    private void addRefreshTokenCookie(HttpHeaders httpHeaders, Token token) {
-        httpHeaders.add(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(token.getValue(), refreshTokenDurationSecond).toString());
-    }
+    
+    
     private void revokeAllTokenOfUser(User user) {
         // get all user tokens
         Set<Token> tokens = user.getTokens();

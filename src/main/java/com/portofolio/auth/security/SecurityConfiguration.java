@@ -44,6 +44,7 @@ public class SecurityConfiguration {
             "/api/experiences/public", 
             "/api/educations/public", 
             "/api/projects/public", 
+            "/api/users/1", 
             "/api/auth/**",
             "/api/manager/token",
             "/api/manager/user/**",

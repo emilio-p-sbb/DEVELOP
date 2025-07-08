@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
             throw new AlreadyExistsException("Data already exists");
         }
 
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+//        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         if (avatar != null && !avatar.isEmpty()) {
             user.setAvatar(avatar.getBytes());
         }
@@ -70,13 +70,19 @@ public class UserServiceImpl implements UserService {
             () -> new ResourceNotFoundException("Role not found")
         );
 
-        user.setUsername(userDto.getUsername());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setUsername(userDto.getEmail());
+//        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setFullname(userDto.getFullname());
         user.setEmail(userDto.getEmail());
         user.setGender(userDto.getGender());
         user.setPhone(userDto.getPhone());
+        user.setLocation(userDto.getLocation());
+        user.setGithubUrl(userDto.getGithubUrl());
+        user.setLinkedinUrl(userDto.getLinkedinUrl());
+        user.setWebsite(userDto.getWebsite());
+        user.setTwitterUrl(userDto.getTwitterUrl());
         user.setRole(role);
+        user.setBio(userDto.getBio());
 
         if (avatar != null && !avatar.isEmpty()) {
             try {

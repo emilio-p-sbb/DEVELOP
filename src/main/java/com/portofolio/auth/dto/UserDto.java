@@ -23,17 +23,17 @@ public class UserDto implements Serializable {
     @Size(min = 2, max = 100)
     private String fullname;
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50)
-    private String username;
+//    @NotBlank(message = "Username is required")
+//    @Size(min = 3, max = 50)
+//    private String username;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, max = 64)
-    private String password;
+//    @NotBlank(message = "Password is required")
+//    @Size(min = 8, max = 64)
+//    private String password;
 
     @NotBlank(message = "Gender is required")
     @Pattern(regexp = "Male|Female|Other")
@@ -43,7 +43,9 @@ public class UserDto implements Serializable {
     @Pattern(regexp = "^\\+?[0-9]{10,15}$")
     private String phone;
 
-    private MultipartFile avatar; // tetap di sini jika kamu kirim avatar di bagian JSON
+//    private MultipartFile avatar; // tetap di sini jika kamu kirim avatar di bagian JSON
+    
+    private String profileAvatar;
 
     @NotBlank(message = "Role is required")
     @Pattern(regexp = "USER|ADMIN|MODERATOR")

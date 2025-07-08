@@ -52,7 +52,7 @@ public class User implements UserDetails {
 	@Column(name = "avatar")
 	private byte[] avatar; // avatar disimpan sebagai file binary
 
-	@Column(length = 128)
+	@Column(name="location", length = 128)
 	private String location;
 
 	@Column(columnDefinition = "TEXT")
